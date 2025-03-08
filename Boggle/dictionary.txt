@@ -1,5 +1,3 @@
-#words sourced from REDBO's scrabble repository on github https://github.com/redbo/scrabble/blob/master/dictionary.txt
-
 AA
 AAH
 AAHED

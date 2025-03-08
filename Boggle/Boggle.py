@@ -72,58 +72,78 @@ def print_board(board):
         print(row)
         row.clear()
             
-def check_word(word):
+def check_word(word,dictionary):
     word = word.upper()
-    with open('dictionary.txt') as file:
-          for line in file:
-            words = line.split()
-            if word in words:
-                return True
-    return False
- def helper(board, ved, row, col, word, wordlst):
+    return word in dictionary
+
+#words sourced from REDBO's scrabble repository on github https://github.com/redbo/scrabble/blob/master/dictionary.txt
+
+def load_dictionary():
+    try:
+        with open(r'C:\Users\duran\OneDrive\VSCODE\GameSolvers\Boggle\dictionary.txt') as file:
+            content = file.read().splitlines()  # Split by lines
+            dictionary = {word.upper() for word in content}
+        return dictionary
+    
+    #issues getting to file, troubleshoot below
+    except FileNotFoundError:
+        print("Error: dictionary.txt not found")
+    except Exception as e:
+        print(f"Error loading dictionary: {e}")
+
+def helper(board,  visited, row, col, word, wordlst,dictionary):
     #add new letter to word
-    ved[row][col] = True
+    visited[row][col] = True
     word = word + board[row][col]
     
     #check if word is in dic
     #boggle word must be three letters in length
-    if len(word) > 2:
-        valid = check_word(word)
-        if valid == True:
-            wordlst.append(word)
+    if len(word) > 2 and check_word(word, dictionary):
+        wordlst.append(word)
         
     #traverse
     
-    #move up and to the left
-    nexrow = row - 1
-    while nexrow <= row + 1 and nexrow < 4: 
-        nexcol = col -1
-        while nexcol <= col +1 and nexcol <4:
-            if (nexrow >= 0 and nexcol >=0 and not ved[nexrow][nexcol]):
-                helper(board, ved, nexrow, nexcol, word, wordlst)
-           
-    #move down and to the right
-            nexcol +=1
-        nexrow +=1
-    
+    #check all 8 directions
+    for num_row in [-1, 0, 1]:
+        for num_col in [-1, 0, 1]:
+            if num_row == 0 and num_col ==0:
+                continue #skip current letter
+                
+            nexrow, nexcol = row + num_row, col + num_col
+            if nexrow > 3 or nexrow < 0 or  nexcol > 3 or nexcol < 0:
+                continue #skip areas outside of board
+          
+            if not visited[nexrow][nexcol]:
+                helper(board, visited, nexrow, nexcol, word, wordlst,dictionary)
+            
+            
+            
     #move back to prev letter
-    word = word[-1]
-    ved[row][col] = False
+    visited[row][col] = False
 
 
-def solver(board):
+def solver(board,dictionary):
     wordlst = []
-    valid = False
-    boollst = [False for x in range(4)]
-    ved = [boollst]*4
     
-    #use all letters as a start. hard coding 5 boggle boards are 4x4. 
+    visited = [[False for _ in range(4)] for _ in range(4)]
+
+    
+    #use all letters as a start. 4x4 grid. 
     for i in range(4):
         for j in range(4):
                 word = ""
-                helper(board, ved, i, j,word, wordlst)
-                #clear visited list for the next start letter
-                boollst = [False for x in range(4)]
-                ved = [boollst]*4
+                helper(board, visited, i, j,word, wordlst,dictionary)
     return wordlst
           
+def boggle():
+    board = set_dice()
+    print_board(board)
+    dictionary = load_dictionary()
+    wordlst = solver(board,dictionary)
+    if len(wordlst) ==0:
+        print( "Wow, not a single word found")
+    else:
+        print(wordlst)
+    
+if __name__ == "__main__":
+    boggle()
