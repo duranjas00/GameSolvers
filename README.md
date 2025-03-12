@@ -8,6 +8,6 @@ Exploring coding algorithms by finding solutions for popular games.<br/>
 ##### Checkers: <br/>
     Nothing
 ##### Suduko:
-    Create Board and isvalid() functions done.
+    Can solve an easy suduko board, needs to test on harder
 ##### Wordle:
     Nothing 

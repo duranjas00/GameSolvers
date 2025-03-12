@@ -1,80 +1,129 @@
 #loads board
 def load_board():
-    with open('Problem1.txt', 'r') as file:
+    with open(r'C:\Users\duran\OneDrive\VSCODE\GameSolvers\Suduko\Problem1.txt') as file:
         content = []
         for line in file:
             for char in line.strip():
                 num = int(char)
                 content.append(num)
     return content 
-            
+
+def print_board(board):
+    for i in range(9):
+        print(' '.join(map(str, board[i*9:(i+1)*9])))
+    
 
 def create_board():
     # create array of notations (A1,A2,A3,A4 etc...)
-    rows = "ABCDEFGHI"
-    cols = "123456789"
-    notation = [a+b for a in rows for b in cols]
-    content = load_board()
-    notatedboard = list(zip(notation,content))
-    return notatedboard
+    """rows = "ABCDEFGHI" ; cols = "123456789" ; notation = [a+b for a in rows for b in cols] ; content = load_board() ; notatedboard = list(zip(notation,content)); return notatedboard"""
+            
+    #the board will be indexed 0-80, can mentally imagine it in a 9x9 box incrementing right to left
+    return load_board()
+
+#the unicode or A is 65, B is 66 etc. so B-A = col 1 A-A = col 0 etc.
+#leaving the notation as A1-9 bc it makes more sense than A0-8 for board games, the conversion is below.
+def notation_to_index(notation):
+    row = ord(notation[0]) - ord('A') #returns a number between 0 and 8
+    col = int(notation[1]) - 1 #returns a number between 0 and 8
+    return row * 9 +col
     
-def rowisvalid(notation,notatedboard, num):
-    letter = notation[0]
-    row = []
-    for tulp in notatedboard:
-        if letter in tulp[0]:
-            row.append(tulp[1])
-        if len(row) == 9:
-            break
+def index_to_notation(index):
+    row = index // 9 #9 columns if divible by nine 0 times, first row if devisble 4 time then it is 4th row
+    col = index % 9  #modluo instead of divide but same logic as above. 
+    
+    row_note = chr(row+ord('A'))
+    col_note = str(col +1)
+    
+    return row_note+col_note
+    
+def rowisvalid(notation, board, num):
+    index = notation_to_index(notation)
+    row_start = (index//9)*9
+    row = board[row_start:row_start+9]
     if num in row:
         return False
     else:
         return True
-def colisvalid(notation,notatedboard, num):
-    number = notation[1]
-    col = []
-    for tulp in notatedboard:
-        if number in tulp:
-            col.append(tulp[1])
-        if len(col) == 9:
-            break
+    
+def colisvalid(notation, board, num):
+            #example of mess before using indices
+    """number = notation[1];col = [];for tulp in board:; if number == tulp[0][1]:;col.append(tulp[1]);if len(col) == 9:;break;if num in col:;return False;else:;return True"""
+    
+    index = notation_to_index(notation)
+    col_start = (index%9) 
+    col = [board[i]for i in range(col_start, 81, 9)]
     if num in col:
         return False
     else:
         return True
-def squareisvalid(notation,notatedboard, num):
-    S1 = ['A1','A2','A3','B1','B2','B3','C1','C2','C3']
-    S2 = ['A4','A5','A6','B4','B5','B6','C4','C5','C6']
-    S3 = ['A7','A8','A8','B7','B8','B9','C7','C8','C9']
-    S4 = ['D1','D2','D3','E1','E2','E3','F1','F2','F3']
-    S5 = ['D4','D5','D6','E4','E5','E6','F4','F5','F6']
-    S6 = ['D7','D8','D9','E7','E8','E9','F7','F8','F9']
-    S7 = ['G1','G2','G3','H1','H2','H3','I1','I2','I3']
-    S8 = ['G4','G5','G6','H4','H5','H6','I4','I5','I6']
-    S9 = ['G7','G8','G9','H7','H8,''H9','I7','I8','I9']
-    SQ = [S1,S2,S3,S4,S5,S6,S7,S8,S8]
-    box = []
+            
+        
+    
+def squareisvalid(notation,board, num):
+    index = notation_to_index(notation)
+    row = index//9
+    col = index % 9 
+    
+    row_start = (row // 3) * 3 #3 instead of 9 so that rows 7-9 // 3 = 2 4-6//3 = 2 etc..
+    col_start = (col // 3) * 3 #3 instead of 9 so that rows 7-9 // 3 = 2 4-6//3 = 2 etc..
+    
     square = []
-    for sqr in SQ:
-        if notation in sqr:
-            box = sqr
-            break       
-    for tulp in notatedboard:
-        if tulp[0] in box:
-            square.append(tulp[1])
-        if len(square) == 9:
-            break
+    for r in range(row_start, row_start+3):
+        for c in range(col_start, col_start+3):
+            square.append(board[r*9 +c]) 
+        
     if num in square:
         return False
     else:
         return True 
-def isvalid(notation,notatedboard, num):
-    if not colisvalid(notation,notatedboard, num):
+    
+def isvalid(notation,board, num):
+    if not colisvalid(notation,board, num):
         return False
-    if not rowisvalid(notation,notatedboard, num):
+    if not rowisvalid(notation,board, num):
         return False
-    if not squareisvalid(notation,notatedboard, num):
+    if not squareisvalid(notation,board, num):
         return False
     return True
 
-print(isvalid('B3',create_board(), 2))
+
+
+def possible_nums(board):
+   
+    possibles = []
+    for i,value in enumerate(board):
+        if value == 0:
+            notation = index_to_notation(i)
+            potential = []
+            for num in range(1,10):
+                valid = isvalid(notation, board, num)
+                if valid:
+                    potential.append(num)
+            possibles.append((notation,potential))
+    return possibles
+ 
+def fill(num,board,notation):
+    index = notation_to_index(notation)
+    board[index] = num
+    
+def sudukohelper(board):
+    possibles = possible_nums(board)
+    #basecase
+    if not possibles:
+        return board
+    for tulp in possibles:
+        if len(tulp[1]) == 1:
+            fill(tulp[1][0], board, tulp[0])
+        
+    return sudukohelper(board)
+    
+def suduko():
+    board = create_board()
+    print("Inital  Board:")
+    print_board(board)
+    solved = sudukohelper(board)
+    print("Solved  Board:")
+    return print_board(solved)
+        
+if __name__ == "__main__":
+    suduko()
