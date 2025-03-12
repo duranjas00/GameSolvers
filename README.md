@@ -7,6 +7,6 @@ Exploring coding algorithms by finding solutions for popular games.<br/>
 ##### Checkers: <br/>
     Nothing
 ##### Suduko:
-    Nothing
+    Create Board and isvalid() functions done.
 ##### Wordle:
     Nothing 
