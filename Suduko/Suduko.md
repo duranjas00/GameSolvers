@@ -4,7 +4,7 @@
 
 ### Important info/to-dos
 -get harder puzzles and test on those <br/>
--puzzle1 resorced from https://norvig.com/sudoku.html <br/>
+-puzzle1 sourced from [https://norvig.com/sudoku.html](https://norvig.com/easy50.txt) <br/>
 -add tests for puzzle format<br/>
 -come up with idea if base case dosent work<br/>
 
