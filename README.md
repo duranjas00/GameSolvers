@@ -11,3 +11,7 @@ Exploring coding algorithms by finding solutions for popular games.<br/>
     Can solve an easy suduko board, needs to test on harder
 ##### Wordle:
     Nothing 
+##### Trivia:
+    Nothing
+##### Connect4:
+    Nothing     
